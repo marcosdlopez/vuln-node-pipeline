@@ -1,0 +1,28 @@
+ version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+    commands:
+      - echo "Instalando dependencias"
+      - npm install
+      - npm install -g snyk
+      - npm install -g trivy
+  pre_build:
+    commands:
+      - echo " vulnerabilidades de dependencias"
+      - snyk test || true
+      - echo "secretos con truffleHog"
+      - npx trufflehog filesystem . || true
+  build:
+    commands:
+      - echo "Escaneo npm audit"
+      - npm audit || true
+      - echo " imagen docker"
+      - docker build -t vuln-node-app .
+      - echo "Escaneo con Trivy"
+      - trivy image vuln-node-app || true
+artifacts:
+  files:
+    - '**/*'
