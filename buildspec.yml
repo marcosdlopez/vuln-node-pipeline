@@ -3,17 +3,18 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 20
+      nodejs: 16
     commands:
-      - echo "dependencias"
+      - echo "Instalando dependencias"
       - npm install
       - npm install eslint eslint-plugin-security --save-dev
 
   build:
     commands:
-      - echo "Analisis estático"
+      - echo "Ejecutando análisis estático con ESLint"
       - npx eslint . || true
 
 artifacts:
   files:
     - '**/*'
+
