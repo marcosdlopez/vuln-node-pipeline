@@ -3,18 +3,17 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      nodejs: 20
     commands:
-      - echo "Instalando dependencias"
+      - echo "dependencias"
       - npm install
-  pre_build:
-    commands:
-      - echo "Ejecutando npm audit"
-      - npm audit --audit-level=low || true
+      - npm install eslint eslint-plugin-security --save-dev
+
   build:
     commands:
-      - echo "Escaneo estático"
-      - npx eslint. || true
-  post_build:
-    commands:
-      - echo "Post build completo"
+      - echo "Analisis estático"
+      - npx eslint . || true
+
+artifacts:
+  files:
+    - '**/*'
