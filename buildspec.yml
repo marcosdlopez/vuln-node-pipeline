@@ -13,7 +13,8 @@ phases:
       - npm audit --audit-level=low || true
   build:
     commands:
-      - echo "Ejecutando build"
+      - echo "Escaneo estático"
+      - npx eslint. || true
   post_build:
     commands:
       - echo "Post build completo"
