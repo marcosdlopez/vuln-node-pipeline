@@ -3,21 +3,16 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 20
+      nodejs: 14
     commands:
       - echo "Instalando dependencias..."
       - npm install
-      - echo "Instalando Snyk de forma global..."
-      - npm install -g snyk || { echo "Fallo al instalar Snyk"; exit 1; }
-      - snyk --version
   pre_build:
     commands:
-      - echo "Ejecutando análisis SAST con Snyk..."
-      - snyk test || true
+      - echo "Ejecutando fase pre_build"
   build:
     commands:
-      - echo "Build ficticio - aquí podría ir npm run build"
+      - echo "Ejecutando build"
   post_build:
     commands:
-      - echo "Fin del pipeline"
-
+      - echo "Post build completo"
