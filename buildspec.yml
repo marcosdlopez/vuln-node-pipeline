@@ -3,30 +3,34 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 20   
+      nodejs: 20 
     commands:
-      - echo "Actualizando npm"
-      - npm install -g npm@latest
-      - echo "Instalando dependencias locales"
-      - npm install snyk trivy
+      - echo "Instalando npm..."
+      - npm install -g npm@latest 
+      - echo "Instalando dependencias locales..."
+      - npm install snyk 
+      - echo "Instalando Trivy..."
+      - curl -sSL https://github.com/aquasecurity/trivy/releases/download/v0.29.1/trivy_0.29.1_Linux-64bit.deb -o trivy.deb
+      - sudo dpkg -i trivy.deb 
       - echo "Instalación completa"
-      
+
   pre_build:
     commands:
-      - echo "Escaneando vulnerabilidades de dependencias con snyk"
+      - echo "Escaneando vulnerabilidades de dependencias con Snyk..."
       - snyk test || true
-      - echo "Buscando secretos con truffleHog"
-      - npx trufflehog filesystem . || true
+      - echo "Buscando secretos con TruffleHog..."
+      - npx trufflehog filesystem . || true  
 
   build:
     commands:
-      - echo "Escaneando con npm audit"
-      - npm audit || true
-      - echo "Construyendo imagen Docker"
-      - docker build -t vuln-node-app .
-      - echo "Escaneando imagen con Trivy"
-      - trivy image vuln-node-app || true
+      - echo "Escaneando con npm audit..."
+      - npm audit || true  # Realiza un análisis de vulnerabilidades en las dependencias
+      - echo "Construyendo la imagen Docker..."
+      - docker build -t vuln-node-app .  
+      - echo "Escaneando la imagen Docker con Trivy..."
+      - trivy image vuln-node-app || true  
 
 artifacts:
   files:
-    - vulnnodeapp.tar
+    - vulnnodeapp.tar  
+
