@@ -5,11 +5,12 @@ phases:
     runtime-versions:
       nodejs: 14
     commands:
-      - echo "Instalando dependencias..."
+      - echo "Instalando dependencias"
       - npm install
   pre_build:
     commands:
-      - echo "Ejecutando fase pre_build"
+      - echo "Ejecutando npm audit"
+      - npm audit --audit-level=low || true
   build:
     commands:
       - echo "Ejecutando build"
