@@ -25,4 +25,4 @@ phases:
       - trivy image vuln-node-app || true
 artifacts:
   files:
-    - '**/*'
+   - vulnnodeapp.tar
