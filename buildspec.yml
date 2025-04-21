@@ -1,4 +1,5 @@
 version: 0.2
+
 env:
   variables:
     REPOSITORY_URI: 655821005352.dkr.ecr.us-east-2.amazonaws.com/vulnnodeapp
@@ -6,15 +7,15 @@ env:
 phases:
   install:
     commands:
-      - echo "Instalando dependencias de Node.js..."
+      - echo "Instalando dependencias de Node.js"
       - npm install
 
   pre_build:
     commands:
       - echo "Amazon ECR."
       - aws --version
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $REPOSITORY_URI
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - $(aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $REPOSITORY_URI)
+      - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Tag de imagen: $IMAGE_TAG"
 
   build:
@@ -28,7 +29,7 @@ phases:
       - echo "Pusheando imagen a ECR."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
-      - echo "Creando imagedefinitions.json."
+      - echo "Creando imagedefinitions.json..."
       - printf '[{"name":"vulnnodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
 artifacts:
