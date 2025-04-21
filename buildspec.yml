@@ -14,8 +14,10 @@ phases:
     commands:
       - echo "Logueando en Amazon ECR."
       - aws --version
-      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $REPOSITORY_URI
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - >
+        aws ecr get-login-password --region us-east-2 |
+        docker login --username AWS --password-stdin $REPOSITORY_URI
+      - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Tag de imagen: $IMAGE_TAG"
 
   build:
@@ -35,4 +37,3 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
-
