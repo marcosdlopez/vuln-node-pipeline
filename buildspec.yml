@@ -1,4 +1,8 @@
 version: 0.2
+env:
+  variables:
+    REPOSITORY_URI: 655821005352.dkr.ecr.us-east-2.amazonaws.com/vulnnodeapp
+    IMAGE_TAG: latest
 
 phases:
   install:
@@ -10,9 +14,9 @@ phases:
     commands:
       - echo "Logueando en Amazon ECR."
       - aws --version
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 655821005352.dkr.ecr.us-east-1.amazonaws.com
-      - REPOSITORY_URI=655821005352.dkr.ecr.us-east-1.amazonaws.com/vulnnodeapp
+      - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin $REPOSITORY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo $IMAGE_TAG
 
   build:
     commands:
@@ -29,3 +33,4 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json
+
