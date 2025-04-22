@@ -3,6 +3,7 @@ version: 0.2
 env:
   variables:
     REPOSITORY_URI: 655821005352.dkr.ecr.us-east-2.amazonaws.com/vulnnodeapp
+
 phases:
   install:
     runtime-versions:
@@ -11,7 +12,7 @@ phases:
       - echo "Instalando dependencias de Node.js..."
       - npm install
 
-pre_build:
+  pre_build:
     commands:
       - echo "Logueando en Amazon ECR..."
       - aws --version
@@ -19,35 +20,33 @@ pre_build:
       - export IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Tag de imagen: $IMAGE_TAG"
 
-build:
+  build:
     commands:
       - echo "Construyendo imagen Docker..."
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
       - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
 
-post_build:
+  post_build:
     commands:
       - echo "Pusheando imagen a ECR..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
 
       - echo "Creando imagedefinitions.json..."
-      - printf '[{"name":"vulnnodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/imagedefinitions.json
+      - printf '[{"name":"vulnnodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
 
       - echo "Instalando Trivy y escaneando la imagen Docker..."
-      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-      - trivy image --no-progress $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/trivy-report.txt || true
+      - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b .
+      - ./trivy image --no-progress $REPOSITORY_URI:$IMAGE_TAG > trivy-report.txt || true
 
       - echo "Instalando Gitleaks y escaneando código fuente..."
       - curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
       - chmod +x gitleaks
-      - ./gitleaks detect --source . --report-format sarif --report-path $CODEBUILD_SRC_DIR/gitleaks-report.sarif || true
+      - ./gitleaks detect --source . --report-format sarif --report-path gitleaks-report.sarif || true
 
 artifacts:
-  base-directory: .
   files:
     - imagedefinitions.json
     - trivy-report.txt
     - gitleaks-report.sarif
-
 
