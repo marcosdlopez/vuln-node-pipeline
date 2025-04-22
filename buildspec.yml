@@ -26,6 +26,9 @@ build:
 
 post_build:
     commands:
+      - echo "Entrando al directorio de código fuente..."
+      - cd $CODEBUILD_SRC_DIR
+
       - echo "Pusheando imagen a ECR..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
@@ -41,8 +44,11 @@ post_build:
       - curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
       - chmod +x gitleaks
       - ./gitleaks detect --source . --report-format sarif --report-path gitleaks-report.sarif || true
+
 artifacts:
+  base-directory: .
   files:
     - imagedefinitions.json
     - trivy-report.txt
     - gitleaks-report.sarif
+
