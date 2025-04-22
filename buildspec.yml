@@ -1,4 +1,5 @@
 version: 0.2
+
 env:
   variables:
     REPOSITORY_URI: 655821005352.dkr.ecr.us-east-2.amazonaws.com/vulnnodeapp
@@ -26,24 +27,21 @@ build:
 
 post_build:
     commands:
-      - echo "Entrando al directorio de código fuente..."
-      - cd $CODEBUILD_SRC_DIR
-
       - echo "Pusheando imagen a ECR..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - docker push $REPOSITORY_URI:latest
 
       - echo "Creando imagedefinitions.json..."
-      - printf '[{"name":"vulnnodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"vulnnodeapp","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/imagedefinitions.json
 
       - echo "Instalando Trivy y escaneando la imagen Docker..."
       - curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
-      - trivy image --no-progress $REPOSITORY_URI:$IMAGE_TAG > trivy-report.txt || true
+      - trivy image --no-progress $REPOSITORY_URI:$IMAGE_TAG > $CODEBUILD_SRC_DIR/trivy-report.txt || true
 
       - echo "Instalando Gitleaks y escaneando código fuente..."
       - curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
       - chmod +x gitleaks
-      - ./gitleaks detect --source . --report-format sarif --report-path gitleaks-report.sarif || true
+      - ./gitleaks detect --source . --report-format sarif --report-path $CODEBUILD_SRC_DIR/gitleaks-report.sarif || true
 
 artifacts:
   base-directory: .
@@ -51,4 +49,5 @@ artifacts:
     - imagedefinitions.json
     - trivy-report.txt
     - gitleaks-report.sarif
+
 
